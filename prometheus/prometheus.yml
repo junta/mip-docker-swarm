@@ -22,7 +22,17 @@ scrape_configs:
     static_configs:
       - targets: ["cadvisor:8080"]
 
+  - job_name: "indexer"
+    static_configs:
+      - targets: ["indexer-service:7300"]
+
   - job_name: "traefik"
     static_configs:
+      - targets: ["traefik:8080"]
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+  - job_name: "node-exporter"
+    static_configs:
       - targets:
-          - "traefik:8080"
+          ["indexer-gnosis_node-exporter:9100", "indexer_node-exporter:9100"]

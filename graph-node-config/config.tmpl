@@ -1,0 +1,18 @@
+[store]
+[store.primary]
+connection = "postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}"
+pool_size = 10
+
+[chains]
+ingestor = "index_node_${CHAIN_NAME}"
+
+[chains.${CHAIN_NAME}]
+shard = "primary"
+provider = [ { label = "${CHAIN_NAME}", url = "${CHAIN_RPC}", features = ["archive", "traces"] } ]
+
+[[deployment.rule]]
+shard = [ "primary" ]
+indexers = [ "index_node_${CHAIN_NAME}" ]
+
+[general]
+query = "query_node_*"

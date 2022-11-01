@@ -26,7 +26,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == indexer-${CHAIN_0_NAME}
+          - node.hostname == indexer-${CHAIN_NAME}
       labels:
         - traefik.enable=false
       resources:
@@ -42,15 +42,15 @@ services:
   ############################################################################
 
   query-node:
-    image: graphprotocol/graph-node:${GRAPH_NODE_VERSION:-v0.27.0}
+    image: graphprotocol/graph-node:${GRAPH_NODE_VERSION:-v0.28.2}
     environment:
-      GRAPH_NODE_CONFIG: /var/config/config-${CHAIN_0_NAME}.toml
+      GRAPH_NODE_CONFIG: /var/config/config.toml
       postgres_host: "postgres"
       postgres_db: "${DB_NAME}"
       postgres_user: "${DB_USER}"
       postgres_pass: "${DB_PASSWORD}"
       ipfs: "${IPFS_ENDPOINT:-https://ipfs.network.thegraph.com}"
-      node_id: "query_node_${CHAIN_0_NAME}"
+      node_id: "query_node_${CHAIN_NAME}"
       node_role: "query-node"
       RUST_LOG: INFO
       GRAPH_LOG: INFO
@@ -70,35 +70,24 @@ services:
         max-file: "10"
     configs:
       - source: ${CHAIN_CONF_NAME}
-        target: /var/config/config-${CHAIN_0_NAME}.toml
+        target: /var/config/config.toml
     networks:
       - default
       - monitor
-      - traefik-public
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints:
-          - node.hostname == indexer-${CHAIN_0_NAME}
+          - node.hostname == indexer-${CHAIN_NAME}
       labels:
-        - traefik.enable=true
-        - traefik.docker.network=traefik-public
-        - traefik.constraint-label=traefik-public
-        - "traefik.http.routers.query-node-http.rule=Host(`${QUERY_NODE_DOMAIN}`)"
-        - traefik.http.routers.query-node-http.entrypoints=http
-        - traefik.http.routers.query-node-http.middlewares=https-redirect
-        - "traefik.http.routers.query-node-https.rule=Host(`${QUERY_NODE_DOMAIN}`)"
-        - traefik.http.routers.query-node-https.entrypoints=https
-        - traefik.http.routers.query-node-https.tls=true
-        - traefik.http.routers.query-node-https.tls.certresolver=le
-        - traefik.http.services.query-node.loadbalancer.server.port=8000
-  #        - traefik.http.middlewares.query-node-auth.basicauth.users=${PROMETHEUS_USER}:${PROMETHEUS_HASHED_PASSWORD?Variable not set}
+        - traefik.enable=false
 
   index-node:
-    image: graphprotocol/graph-node:${GRAPH_NODE_VERSION:-v0.27.0}
+    image: graphprotocol/graph-node:${GRAPH_NODE_VERSION:-v0.28.2}
     environment:
-      GRAPH_NODE_CONFIG: /var/config/config-${CHAIN_0_NAME}.toml
+      GRAPH_NODE_CONFIG: /var/config/config.toml
+      BLOCK_INGESTOR: "index_node_${CHAIN_NAME}"
       postgres_host: "postgres"
       postgres_db: "${DB_NAME}"
       postgres_user: "${DB_USER}"
@@ -106,8 +95,7 @@ services:
       ipfs: "${IPFS_ENDPOINT:-https://ipfs.network.thegraph.com}"
       GRAPH_KILL_IF_UNRESPONSIVE: "true"
       node_role: "index-node"
-      node_id: "index_node_${CHAIN_0_NAME}"
-      BLOCK_INGESTOR: "index_node_${CHAIN_0_NAME}"
+      node_id: "index_node_${CHAIN_NAME}"
       RUST_LOG: INFO
       GRAPH_LOG: ${GRAPH_NODE_LOGLEVEL:-DEBUG}
       STORE_CONNECTION_POOL_SIZE: ${STORE_CONNECTION_POOL_SIZE:-10}
@@ -117,8 +105,6 @@ services:
       GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: ${GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE:-500}
       GRAPH_ETHEREUM_TARGET_TRIGGERS_PER_BLOCK_RANGE: ${GRAPH_ETHEREUM_TARGET_TRIGGERS_PER_BLOCK_RANGE:-200}
       GRAPH_ALLOW_NON_DETERMINISTIC_FULLTEXT_SEARCH: "true"
-      CHAIN_0_NAME: "${CHAIN_0_NAME}"
-      CHAIN_0_RPC: "${CHAIN_0_RPC}"
       TZ: Asia/Tokyo
     logging:
       driver: "json-file"
@@ -127,7 +113,7 @@ services:
         max-file: "10"
     configs:
       - source: ${CHAIN_CONF_NAME}
-        target: /var/config/config-${CHAIN_0_NAME}.toml
+        target: /var/config/config.toml
     # Swarm
     networks:
       - default
@@ -137,7 +123,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.hostname == indexer-${CHAIN_0_NAME}
+          - node.hostname == indexer-${CHAIN_NAME}
 
   ############################################################################
   #                      node-exporter - Export data                         #
@@ -152,7 +138,7 @@ services:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == indexer-${CHAIN_0_NAME}
+          - node.hostname == indexer-${CHAIN_NAME}
       resources:
         reservations:
           cpus: "0.1"
@@ -190,7 +176,7 @@ services:
 
 networks:
   default:
-    name: indexer_${CHAIN_0_NAME}_default
+    name: indexer_${CHAIN_NAME}_default
   monitor:
     external: true
   traefik-public:
