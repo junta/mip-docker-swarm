@@ -30,7 +30,6 @@ MIP テストネットへの対応として、チェーンごとの別サーバ�
 | swarmpit | swarmpit.sld.tld | サーバー（マネージャー）の IP |
 | prometheus | prometheus.sld.tld | サーバー（マネージャー）の IP |
 | grafana | grafana.sld.tld | サーバー（マネージャー）の IP |
-| query | query.sld.tld | サーバー（マネージャー）の IP |
 | indexer | indexer.sld.tld | サーバー（マネージャー）の IP |
 | console | console.sld.tld | サーバー（マネージャー）の IP |
 
@@ -123,7 +122,6 @@ phase1.sh の実行時、次の情報を入力する必要があります（.env
 - コンソールのドメイン（インデクサーを操作するためのコンソール。console.sld.tldで接続できます）
 - コンソールのユーザー名
 - コンソールのパスワード
-- goerli のアーカイブノード RPC API URL アドレス(alchemy/ankr)
 - 同期するチェーン名（gnosis と入力してください）
 
 最初の phase1.sh 実行時は 10 分~15 分程度の時間がかかります。
@@ -139,20 +137,17 @@ phase1 では、次のミッションがあります。
 
 - 新しい goerli ETH アドレスを作る（Mission1）
 - The Graph のテストネットインデクサーになる（Mission2）
-- インデクサーとしての活動を開始し、収益化を開始する（Mission3）
+- インデクサーとしての活動を開始する（Mission3）
 
 https://thegraphfoundation.notion.site/Phase-1-Indexer-Account-Setup-Protocol-Interaction-eba1c9d696fe4f9ba0e11de441914f0e
 
 をご確認ください。
 
-収益化については、また別途で記載します・・・・
+**2022/11/03 現在、既にクエリ送出テストが開始されているようです。**
 
-### phase1 Mission1をクリアする
-#### アドレスをフォームから提出する
-phase1 Mission1はフォーム(https://thegraph.typeform.com/to/LyTtvRqP )からgoerli ETH アドレスを提出することで完了できます
+### phase1 Mission1をクリアする（もう終わってます）
 
-### phase1 Mission2 をクリアする（2022/10/22以降）
-下は、2022/10/22以降に開始してください。
+### phase1 Mission2 をクリアする
 #### インデクサー登録する
 
 https://testnet.thegraph.com でインデクサーになるため、200kGRT をステーキングする必要があります。
@@ -172,6 +167,20 @@ https://testnet.thegraph.com でインデクサーになるため、200kGRT を�
 1. 上の goerli ETH アドレスを設定した Metamask で接続する
 1. 右上のアバターをクリックする
 1. Operators ボタンをクリックし、+ ボタンを押して他のアドレスを追加する
+
+#### サブグラフへのアロケーション
+次に、サブグラフをインデックス開始するための手続きを説明します。
+コンソールのドメインを開き、入力したパスワードを使ってログインしましょう。
+1. コンソールにログインする
+2. imageがindexer-cliのものを選択し、container idをクリックする
+3. コンソールが開きます。次のコマンドを一行ずつ入力し、アロケーションを行いましょう。
+```
+graph indexer allocations create QmW8Cbb2R4ZHWGsrYjNJKRjoKKcPeDTNK6rdipfQQaAhd6 割当たい枚数 index_node_gnosis
+graph indexer allocations create QmWq1pmnhEvx25qxpYYj9Yp6E1xMKMVoUjXVQBxUJmreSe 割当たい枚数 index_node_gnosis
+graph indexer allocations create QmSqJEGHp1PcgvBYKFF2u8vhJZt8JTq18EV7mCuuZZiutX 割当たい枚数 index_node_gnosis
+graph indexer allocations create QmeVXKzGKSyfEQib4MzeZveJgDYJCYDMMHc1pPevWeSbsq 割当たい枚数 index_node_gnosis
+```
+このコマンドを実行すると、オペレーターウォレットからTXが発信し、アロケーションが実施されます。この後、grafanaのダッシュボードで、を確認すると、インデックスが開始しているはずです。
 
 ## 9. 使い方に慣れる
 
