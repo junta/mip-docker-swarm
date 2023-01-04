@@ -5,3 +5,4 @@
 
 # ignore config.toml without config.tmpl
 *.toml
+deployment/
